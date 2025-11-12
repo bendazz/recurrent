@@ -15,7 +15,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
     }
     html, body { height:100%; margin:0; background:var(--bg); color:var(--text); }
-    body { display:flex; align-items:center; justify-content:center; padding:2rem; box-sizing:border-box; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:2rem; box-sizing:border-box; gap:3.5rem; min-height:100vh; }
     .stage { position:relative; display:flex; align-items:center; justify-content:center; min-height:480px; min-width:760px; }
 
   .cell-wrapper { position:relative; display:flex; align-items:center; gap:2.5rem; }
@@ -90,6 +90,50 @@
       .rnn-cell { width:260px; height:260px; }
       .input-scalar { margin-top:1rem; }
     }
+
+    /* Sequence of RNN cells */
+    .seq-diagram { display:flex; flex-direction:column; align-items:center; gap:1.6rem; }
+    .seq-title { font-size:0.9rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); font-weight:600; }
+    .seq-row { --cellH:150px; display:flex; align-items:flex-start; justify-content:center; gap:1.25rem; flex-wrap:nowrap; }
+    .cell-mini { width:150px; height:var(--cellH); border:3px solid var(--accent); border-radius:14px; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg, #1b232c, #252f39); font-size:1.05rem; font-weight:600; position:relative; box-sizing:border-box; }
+    .cell-mini::before { content:"RNN Cell"; position:absolute; top:-1.5rem; left:50%; transform:translateX(-50%); font-size:0.75rem; color:var(--muted); letter-spacing:0.5px; }
+    .state-label { font-size:0.9rem; font-weight:600; color:var(--text); text-align:center; }
+    .h-start, .h-seg, .h-end { height:var(--cellH); display:flex; align-items:center; justify-content:center; }
+    .h-seg { flex-direction:column; gap:0.35rem; }
+    .state-label.over { font-size:0.85rem; color:var(--muted); }
+    .arrow-h { width:110px; height:2px; background:var(--accent); position:relative; }
+    .arrow-h:after { content:""; position:absolute; right:0; top:50%; transform:translateY(-50%); width:0; height:0; border-left:10px solid var(--accent); border-top:6px solid transparent; border-bottom:6px solid transparent; }
+    .seq-cellstack, .cell-block { display:flex; flex-direction:column; align-items:center; }
+    .bottom-input { display:flex; flex-direction:column; align-items:center; margin-top:0.5rem; }
+    .arrow-up { width:2px; height:70px; background:var(--accent); position:relative; margin-bottom:0.4rem; }
+    .arrow-up:after { content:""; position:absolute; top:0; left:50%; transform:translate(-50%, -50%); width:0; height:0; border-bottom:10px solid var(--accent); border-left:6px solid transparent; border-right:6px solid transparent; }
+    .seq-ellipsis { font-size:2rem; color:var(--muted); align-self:center; }
+    @media (max-width: 900px) {
+      .seq-row { flex-wrap:wrap; gap:0.9rem; --cellH:120px; }
+      .cell-mini { width:120px; }
+      .arrow-h { width:70px; }
+      .arrow-up { height:50px; }
+    }
+
+    /* Practice problems */
+    .practice { width:min(1100px, 100%); display:flex; flex-direction:column; gap:1rem; }
+    .practice-title { font-size:1rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); font-weight:700; }
+    .assumption { color:var(--muted); font-size:0.9rem; margin-bottom:0.5rem; }
+    .prob-grid { display:grid; grid-template-columns:repeat(3, minmax(260px, 1fr)); gap:1rem; }
+    .card { background:linear-gradient(145deg, #1b232c, #252f39); border:1px solid #2f3b46; border-radius:12px; padding:1rem; display:flex; flex-direction:column; gap:0.75rem; }
+    .given { font-size:0.95rem; line-height:1.5; }
+    .given code { background:#0d1319; border:1px solid #33414f; padding:0.1rem 0.35rem; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color:#c3e1ff; }
+    .btn-row { display:flex; gap:0.5rem; }
+    .btn { background:var(--accent); border:none; color:#0b0e13; font-weight:700; border-radius:8px; padding:0.5rem 0.75rem; cursor:pointer; box-shadow:0 2px 0 rgba(0,0,0,0.3); }
+    .btn.secondary { background:#2a3340; color:var(--text); border:1px solid #374556; }
+  .answer { display:none; padding:0.6rem; border:1px dashed #37506a; border-radius:8px; background:#15202b; }
+    .answer .final { font-weight:800; color:#7ee787; }
+    .steps { font-size:0.9rem; color:#b8c7d9; margin-top:0.4rem; }
+    .steps .step { margin:0.15rem 0; }
+  .inline-matrix, .inline-vector { font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background:#0d1319; border:1px solid #33414f; padding:0.25rem 0.45rem; border-radius:6px; display:inline-block; line-height:1.3; }
+  .inline-matrix-row { display:block; }
+    @media (max-width: 1200px) { .prob-grid { grid-template-columns:repeat(2, minmax(260px, 1fr)); } }
+    @media (max-width: 700px)  { .prob-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -215,8 +259,164 @@
     </div>
   </div>
 
+  <!-- Sequence of RNN cells -->
+  <div class="seq-diagram" aria-label="RNN sequence diagram">
+    <div class="seq-title">Sequence of RNN Cells</div>
+    <div class="seq-row">
+      <div class="h-start" aria-label="initial hidden state">
+        <div class="state-label">h₀</div>
+        <div class="arrow-h" title="to cell 0"></div>
+      </div>
+
+      <div class="cell-block" aria-label="time step 0">
+        <div class="cell-mini"></div>
+        <div class="bottom-input">
+          <div class="arrow-up" title="input x₀"></div>
+          <div class="state-label">x₀</div>
+        </div>
+      </div>
+
+      <div class="h-seg" aria-label="hidden state after step 0">
+        <div class="state-label over">h₁</div>
+        <div class="arrow-h" title="to cell 1"></div>
+      </div>
+
+      <div class="cell-block" aria-label="time step 1">
+        <div class="cell-mini"></div>
+        <div class="bottom-input">
+          <div class="arrow-up" title="input x₁"></div>
+          <div class="state-label">x₁</div>
+        </div>
+      </div>
+
+      <div class="h-seg" aria-label="hidden state after step 1">
+        <div class="state-label over">h₂</div>
+        <div class="arrow-h" title="to cell 2"></div>
+      </div>
+
+      <div class="cell-block" aria-label="time step 2">
+        <div class="cell-mini"></div>
+        <div class="bottom-input">
+          <div class="arrow-up" title="input x₂"></div>
+          <div class="state-label">x₂</div>
+        </div>
+      </div>
+
+      <div class="seq-ellipsis" aria-hidden="true">⋯</div>
+
+      <div class="cell-block" aria-label="time step t">
+        <div class="cell-mini"></div>
+        <div class="bottom-input">
+          <div class="arrow-up" title="input xₜ"></div>
+          <div class="state-label">xₜ</div>
+        </div>
+      </div>
+
+      <div class="h-end" aria-label="hidden state after step t">
+        <div class="arrow-h" title="final output"></div>
+        <div class="state-label">hₜ</div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Minimal placeholder JS (reserved for future steps)
+    // Practice problems: vector RNN h_t = tanh(W_h h_{t-1} + W_x x_t + b), h_0 = 0 vector
+    (function(){
+      const tanh = x => Math.tanh ? Math.tanh(x) : (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x));
+      const round = (x,d=4) => { const f=10**d; return Math.round(x*f)/f; };
+      const vec = (n,v=0)=>Array(n).fill(v);
+      const add = (a,b)=>a.map((v,i)=>v+b[i]);
+      const scale = (a,s)=>a.map(v=>v*s);
+      const matVec = (M,v)=>M.map(row=>row.reduce((sum,val,j)=>sum+val*v[j],0));
+      const applyTanh = a=>a.map(tanh);
+      const fmtVec = a=>`[${a.map(v=>round(v,4)).join(', ')}]`;
+      const fmtMat = M=>M.map(r=>`[${r.map(v=>round(v,4)).join(', ')}]`).join('<br/>');
+
+      // Problems: dimension 3
+      const problems = [
+        { id:1, Wx:[0.8,-0.4,0.2], Wh:[[0.5,0.1,-0.2],[0.0,0.9,0.3],[-0.3,0.2,0.7]], b:[0,0,0], x:[1,0,1] },
+        { id:2, Wx:[0.3,0.3,0.3], Wh:[[0.6,0.0,0.0],[0.2,0.7,0.1],[0.0,0.3,0.5]], b:[0.1,-0.1,0.05], x:[2,-1] },
+        { id:3, Wx:[-0.5,0.4,0.9], Wh:[[0.9,-0.2,0.0],[0.1,0.8,0.2],[0.05,0.15,0.7]], b:[0,0,0], x:[1,1,1,1] },
+        { id:4, Wx:[0.7, -0.6, 0.1], Wh:[[0.4,0.3,0.0],[0.0,0.5,0.4],[0.2,0.1,0.6]], b:[0.05,0.0,-0.05], x:[1,0,-1,0] },
+        { id:5, Wx:[0.2,0.9,-0.3], Wh:[[0.7,0.1,0.0],[0.2,0.6,0.3],[0.0,0.25,0.8]], b:[0.0,0.0,0.0], x:[2,-2,1] },
+        { id:6, Wx:[0.0,0.0,0.0], Wh:[[0.9,0.05,0.05],[0.05,0.9,0.05],[0.05,0.05,0.9]], b:[0.1,0.1,0.1], x:[0,0,0,0] }
+      ];
+
+      function compute(prob){
+        let h = vec(prob.Wx.length,0);
+        const steps=[];
+        for(let t=0;t<prob.x.length;t++){
+          const projH = matVec(prob.Wh,h);
+          const projX = scale(prob.Wx, prob.x[t]);
+          const z = add(add(projH, projX), prob.b);
+          const hNew = applyTanh(z);
+          steps.push({t, x:prob.x[t], h_prev:[...h], projH, projX, z, h:hNew});
+          h = hNew;
+        }
+        return { hT:h, steps };
+      }
+
+      function render(){
+        const container=document.createElement('div');
+        container.className='practice';
+        container.innerHTML=`
+          <div class="practice-title">Practice: Compute final hidden state (Vector RNN)</div>
+          <div class="assumption">Assume h₀ = [0,0,0], element-wise tanh activation: h_t = tanh(W_h h_{t-1} + W_x x_t + b)</div>
+          <div class="prob-grid" id="probGrid"></div>
+        `;
+        document.body.appendChild(container);
+        const grid=container.querySelector('#probGrid');
+
+        for(const p of problems){
+          const T = p.x.length;
+          const card=document.createElement('div');
+          card.className='card';
+          card.innerHTML=`
+            <div class="given">
+              <div><strong>Problem ${p.id}</strong></div>
+              <div>W_x = <span class="inline-vector">${fmtVec(p.Wx)}</span></div>
+              <div>W_h = <span class="inline-matrix">${fmtMat(p.Wh)}</span></div>
+              <div>b = <span class="inline-vector">${fmtVec(p.b)}</span></div>
+              <div>x = [${p.x.join(', ')}], T = ${T}</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn reveal">Reveal answer</button>
+              <button class="btn secondary steps-toggle">Show steps</button>
+            </div>
+            <div class="answer"></div>
+          `;
+          grid.appendChild(card);
+          const answerBox = card.querySelector('.answer');
+          const { hT, steps } = compute(p);
+          const finalStr = `h_${T} = ${fmtVec(hT)}`;
+          const stepsBox = document.createElement('div');
+          stepsBox.className='steps';
+          stepsBox.style.display='none';
+          stepsBox.innerHTML = steps.map(s=>{
+            return `<div class="step">t=${s.t+1}:<br/>h_{${s.t}} = ${fmtVec(s.h_prev)}<br/>W_h h_{${s.t}} = ${fmtVec(s.projH)}<br/>W_x x_${s.t+1} = ${fmtVec(s.projX)} (x_${s.t+1}=${s.x})<br/>z_${s.t+1} = ${fmtVec(s.z)}<br/>h_${s.t+1} = tanh(z_${s.t+1}) = ${fmtVec(s.h)}</div>`;
+          }).join('');
+          answerBox.innerHTML = `<div><strong>Answer:</strong> <span class="final">${finalStr}</span></div>`;
+          answerBox.appendChild(stepsBox);
+
+          const revealBtn = card.querySelector('.reveal');
+          const stepsBtn = card.querySelector('.steps-toggle');
+          revealBtn.addEventListener('click', ()=>{
+            answerBox.style.display = answerBox.style.display==='block' ? 'none' : 'block';
+            revealBtn.textContent = answerBox.style.display==='block' ? 'Hide answer' : 'Reveal answer';
+          });
+          stepsBtn.addEventListener('click', ()=>{
+            if(answerBox.style.display!=='block'){
+              answerBox.style.display='block';
+              revealBtn.textContent='Hide answer';
+            }
+            stepsBox.style.display = stepsBox.style.display==='block' ? 'none' : 'block';
+            stepsBtn.textContent = stepsBox.style.display==='block' ? 'Hide steps' : 'Show steps';
+          });
+        }
+      }
+
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', render); else render();
+    })();
   </script>
 </body>
 </html>
